@@ -5,9 +5,46 @@
     <link rel="icon" type="image/svg+xml" href="/img/item_workstation.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Terminus</title>
+    <meta name="description"
+          content="The last and the first destination">
+    <meta name="author" content="luffah"/>
+    <meta name="author" content="Shawn Conrad, Michele Pratusevich, michele.pratusevich@gmail.com"/>
+    <meta name="author" content="GB"/>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/main.js"></script>
+    <div id="term"></div>
+
+    <!-- FIXME ??? -->
+    <iframe id="pogen" style="display:none;"></iframe>
+
+    <script type="text/javascript" src="/src/.build/terminus.dialog.fr.js"></script>
+    <script type="text/javascript" src="/src/js/engine/howler.core.js"></script>
+    <script type="text/javascript" src="/src/js/engine/js.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Gettext.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Cookie.js"></script>
+    <script type="text/javascript" src="/src/js/engine/GameState.js"></script>
+    <script type="text/javascript" src="/src/js/engine/EventTarget.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Sound.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Music.js"></script>
+    <script type="text/javascript" src="/src/js/engine/ReturnSequence.js"></script>
+    <script type="text/javascript" src="/src/js/engine/VTerm.js"></script>
+    <script type="text/javascript" src="/src/js/engine/User.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Parse.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Command.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Commands.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Pic.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Item.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Room.js"></script>
+    <script type="text/javascript" src="/src/js/engine/pogen.js"></script>
+    <script type="text/javascript" src="/src/js/engine/Testing.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.init.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.assets.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.utils.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.gamestart.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.level1.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.level2.js"></script>
+    <script type="text/javascript" src="/src/js/terminus.run.js"></script>
+
+    <script type="module" src="/src/js/main.js"></script>
   </body>
 </html>
