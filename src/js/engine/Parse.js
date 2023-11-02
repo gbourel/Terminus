@@ -1,3 +1,6 @@
+const regexp_str = /^['"].*['"]$/;
+const regexp_star = /.*\*.*/;
+
 function _expandArgs(args, r) {
 	var newargs = [],
 		room,

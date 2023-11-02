@@ -741,9 +741,9 @@ VTerm.prototype = {
 		this.input_behavior();
 	},
 	global_behavior: function () {
-		window.onbeforeunload = function (e) {
-			return "Quit the game ?";
-		};
+		// window.onbeforeunload = function (e) {
+		// 	return "Quit the game ?";
+		// };
 	},
 	_cmdline_key: function () {},
 	input_behavior: function () {

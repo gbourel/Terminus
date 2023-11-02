@@ -1,6 +1,6 @@
-var regexp_str = /^['"].*['"]$/;
-var regexp_star = /.*\*.*/;
-var global_spec = {};
+import { Item, File, People } from './Item.js';
+
+const global_spec = {};
 
 function Room(roomname, introtext, picname, prop) {
 	prop = prop || {};
@@ -20,29 +20,29 @@ function Room(roomname, introtext, picname, prop) {
 	//for event handling
 	//  this.ev = new EventTarget();
 }
-function newRoom(id, picture, prop) {
+export function newRoom(map, id, picture, prop) {
 	//this function automatically set the variable $id to ease game saving
-	var poid = POPREFIX_ROOM + id;
-	var n = new Room(
+	let poid = POPREFIX_ROOM + id;
+	let n = new Room(
 		_(poid, [], { or: PO_DEFAULT_ROOM }),
 		_(poid + POSUFFIX_DESC, [], { or: PO_DEFAULT_ROOM_DESC }),
 		picture,
 		prop,
 	);
-	n.varname = "$" + id; //currently undefined for user created rooms, see mkdir
+	n.varname = id; //currently undefined for user created rooms, see mkdir
 	n.poid = poid;
-	n.picture.setImgClass(n.varname.replace("$", "room-"));
-	window[n.varname] = n;
+	n.picture.setImgClass("room-" + n.varname);
+	map[n.varname] = n;
 	return n;
 }
-function enterRoom(new_room, vt) {
-	var prev = vt.getContext();
+export function enterRoom(new_room, vt, state) {
+	let prev = vt.getContext();
 	if (prev || !new_room.hasParent(prev)) {
 		// console.log(prev.toString(),'doLeaveCallbackTo',new_room.toString());
 		prev.doLeaveCallbackTo(new_room);
 	}
 	vt.setContext(new_room);
-	state.setCurrentRoom(new_room);
+	vt.state.setCurrentRoom(new_room);
 	if (typeof new_room.enter_callback == "function") {
 		new_room.enter_callback(new_room, vt);
 	}
@@ -51,9 +51,9 @@ function enterRoom(new_room, vt) {
 Room.prototype = union(File.prototype, {
 	fire_event: function (vt, cmd, args, idx, ct) {
 		ct = d(ct, {});
-		var ev_trigger = null;
+		let ev_trigger = null;
 		// console.log('EVENT '+cmd);
-		var context = {
+		let context = {
 			term: vt,
 			room: this,
 			arg: def(idx) ? args[idx] : null,
@@ -72,7 +72,7 @@ Room.prototype = union(File.prototype, {
 			ev_trigger = this.cmd_event[cmd];
 		}
 		if (ev_trigger) {
-			var ck =
+			let ck =
 				typeof ev_trigger === "function" ? ev_trigger(context) : ev_trigger;
 			if (ck) {
 				// console.log('FIRE '+ck);
@@ -139,21 +139,21 @@ Room.prototype = union(File.prototype, {
 	newItem: function (id, picname, prop) {
 		prop = d(prop, {});
 		prop.poid = d(prop.poid, id);
-		var ret = new Item("", "", picname, prop);
+		let ret = new Item("", "", picname, prop);
 		this.addItem(ret);
 		return ret;
 	},
 	newPeople: function (id, picname, prop) {
 		prop = d(prop, {});
 		prop.poid = d(prop.poid, id);
-		var ret = new People("", "", picname, prop);
+		let ret = new People("", "", picname, prop);
 		this.addItem(ret);
 		return ret;
 	},
 	newItemBatch: function (id, names, picname, prop) {
-		var ret = [];
+		let ret = [];
 		prop = d(prop, {});
-		for (var i = 0; i < names.length; i++) {
+		for (let i = 0; i < names.length; i++) {
 			prop.poid = id;
 			prop.povars = [names[i]];
 			ret[i] = new Item("", "", picname, prop);
@@ -165,27 +165,27 @@ Room.prototype = union(File.prototype, {
 		return idx == -1 ? null : this.items.splice(idx, 1)[0];
 	},
 	removeItemByName: function (name) {
-		idx = this.idxItemFromName(name);
+		let idx = this.idxItemFromName(name);
 		return this.removeItemByIdx(idx);
 	},
 	hasItem: function (name, args) {
 		args = args || [];
-		idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
+		let idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
 		return idx > -1;
 	},
 	removeItem: function (name, args) {
 		args = args || [];
-		idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
+		let idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
 		return this.removeItemByIdx(idx);
 	},
 	hasPeople: function (name, args) {
 		args = args || [];
-		idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
+		let idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
 		return idx > -1;
 	},
 	removePeople: function (name, args) {
 		args = args || [];
-		idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
+		let idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
 		return this.removeItemByIdx(idx);
 	},
 	idxItemFromName: function (name) {
@@ -196,7 +196,7 @@ Room.prototype = union(File.prototype, {
 	},
 	getItemFromName: function (name) {
 		//    console.log(name);
-		idx = this.idxItemFromName(name);
+		let idx = this.idxItemFromName(name);
 		return idx == -1 ? null : this.items[idx];
 	},
 	getItem: function (name) {
@@ -205,11 +205,11 @@ Room.prototype = union(File.prototype, {
 
 	// linked room management
 	getChildFromName: function (name) {
-		idx = this.children.map(objToStr).indexOf(name);
+		let idx = this.children.map(objToStr).indexOf(name);
 		return idx == -1 ? null : this.children[idx];
 	},
 	hasChild: function (child) {
-		idx = this.children.map(objToStr).indexOf(child.name);
+		let idx = this.children.map(objToStr).indexOf(child.name);
 		return idx == -1 ? null : this.children[idx];
 	},
 	addPath: function (newchild, wayback) {
@@ -223,13 +223,13 @@ Room.prototype = union(File.prototype, {
 		return this;
 	},
 	doLeaveCallbackTo: function (to) {
-		t = this;
+		let self = this;
 		//    console.log(t+' leave callback ?');
-		if (t.uid === to.uid) {
-		} else if (t.parents.length) {
-			var p = t.parents[0];
-			if (typeof t.leave_callback == "function") {
-				t.leave_callback();
+		if (self.uid === to.uid) {
+		} else if (self.parents.length) {
+			let p = self.parents[0];
+			if (typeof self.leave_callback == "function") {
+				self.leave_callback();
 			}
 			if (p) {
 				p.doLeaveCallbackTo(to);
@@ -238,9 +238,9 @@ Room.prototype = union(File.prototype, {
 	},
 	hasParent: function (par, symbolic) {
 		symbolic = d(symbolic, false);
-		var ret = false,
+		let ret = false,
 			p = this.parents;
-		for (var i = 0; i < (symbolic ? p.length : p.length ? 1 : 0); i++) {
+		for (let i = 0; i < (symbolic ? p.length : p.length ? 1 : 0); i++) {
 			ret = p[i].uid == par.uid || ret || p[i].hasParent(par);
 		}
 		return ret;
@@ -279,8 +279,8 @@ Room.prototype = union(File.prototype, {
 		} else if (arg === ".") {
 			return this;
 		} else if (arg && arg.indexOf("/") == -1) {
-			var c = this.children;
-			for (var i = 0; i < c.length; i++) {
+			let c = this.children;
+			for (let i = 0; i < c.length; i++) {
 				if (arg === c[i].toString()) {
 					return c[i];
 				}
@@ -293,7 +293,7 @@ Room.prototype = union(File.prototype, {
 	 * if item is null, then the path describe a room and  room is the full path
 	 * else room is the room containing the item */
 	traversee: function (path) {
-		var item,
+		let item,
 			pa = this.pathToRoom(path),
 			ret = {};
 		ret.room = pa[0];
@@ -302,7 +302,7 @@ Room.prototype = union(File.prototype, {
 		if (ret.room) {
 			ret.room_name = ret.room.name;
 			if (ret.item_name) {
-				for (i = 0; i < ret.room.items.length; i++) {
+				for (let i = 0; i < ret.room.items.length; i++) {
 					if (ret.item_name === ret.room.items[i].toString()) {
 						ret.item = ret.room.items[i];
 						ret.item_idx = i;
@@ -315,16 +315,18 @@ Room.prototype = union(File.prototype, {
 		return ret;
 	},
 	pathToRoom: function (path) {
-		var pat = path.split("/");
-		var room = this;
-		var lastcomponent = null;
-		var cancd = true;
-		var pathstr = "";
-		for (var i = 0; i < pat.length - 1; i++) {
+		if (!path) { return null; }
+		let pat = path.split("/");
+		let room = this;
+		let lastcomponent = null;
+		let cancd = true;
+		let pathstr = "";
+		let idx = 0;
+		for (idx = 0; idx < pat.length - 1; idx++) {
 			if (room && room.executable) {
-				room = room.can_cd(pat[i]);
+				room = room.can_cd(pat[idx]);
 				if (room) {
-					pathstr += (i > 0 ? "/" : "") + pat[i];
+					pathstr += (idx > 0 ? "/" : "") + pat[idx];
 				}
 			} else {
 				break;
@@ -335,7 +337,7 @@ Room.prototype = union(File.prototype, {
 			cancd = room.can_cd(lastcomponent);
 			if (cancd) {
 				room = cancd;
-				pathstr += (i > 0 ? "/" : "") + lastcomponent + "/";
+				pathstr += (idx > 0 ? "/" : "") + lastcomponent + "/";
 				lastcomponent = null;
 			}
 		}

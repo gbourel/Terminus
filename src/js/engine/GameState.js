@@ -1,14 +1,20 @@
-function GameState() {
+
+
+export function GameState() {
+	this.map = {};								// current rooms
 	this.params = {};
 	this.actions = {};
 	this.cookie = null;
-	this.Event = function (e) {
-		state.apply(e.type);
-	};
+	// this.Event = function (e) {
+	// 	console.error('FIXME state');
+	// 	state.apply(e.type);
+	// };
 }
 GameState.prototype = {
 	getCurrentRoom: function () {
-		return window[this.params[""]];
+		console.info('getCurrentRoom', this.current);
+		return this.current
+		// return this.map[this.params[""]];
 	},
 	saveCookie: function () {
 		//when you call this function, set the cookie in the browser
@@ -17,8 +23,10 @@ GameState.prototype = {
 		}
 	},
 	setCurrentRoom: function (newRoom) {
+		console.info('setCurrentRoom', newRoom);
 		if (newRoom.varname) {
 			this.params[""] = newRoom.varname;
+			this.current = newRoom;
 			this.saveCookie();
 		}
 	},

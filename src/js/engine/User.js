@@ -1,10 +1,10 @@
 var user = { groups: [], name: "", address: "" };
 
-function _setUserName(val) {
+function _setUserName(state, val) {
 	if (val.length) user.name = val;
 	state.set("usr", user.name);
 }
-function _setUserAddress(val) {
+function _setUserAddress(state, val) {
 	if (val.length) user.address = val;
 	state.set("adr", user.address);
 }

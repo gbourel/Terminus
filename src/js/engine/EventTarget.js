@@ -2,7 +2,7 @@
 //MIT License
 //taken from http://www.nczonline.net/blog/2010/03/09/custom-events-in-javascript/
 
-function EventTarget() {
+export function EventTarget() {
 	this._listeners = {};
 }
 EventTarget.prototype = {

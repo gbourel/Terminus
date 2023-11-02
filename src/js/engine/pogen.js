@@ -85,10 +85,10 @@ _setupCommand("pogen", "poe", [], function (args, vt) {
 	];
 });
 
-$home.setCmdEvent("poe_cmd_not_found", "poe_mode").addStates({
-	poe_mode: function (re) {
-		vt.show_msg(_("cmd_poe_revealed"));
-		_addGroup("poe");
-		learn(vt, ["poe", "pogen"], re);
-	},
-});
+// $home.setCmdEvent("poe_cmd_not_found", "poe_mode").addStates({
+// 	poe_mode: function (re) {
+// 		vt.show_msg(_("cmd_poe_revealed"));
+// 		_addGroup("poe");
+// 		learn(vt, ["poe", "pogen"], re);
+// 	},
+// });

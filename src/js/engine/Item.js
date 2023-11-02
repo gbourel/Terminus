@@ -1,9 +1,11 @@
+import { EventTarget } from './EventTarget.js';
+
 var global_uid = {};
 function getObjUID(name) {
 	cntUp(global_uid, name, 0);
 	return name.substr(0, 4) + global_uid[name];
 }
-function File(name, picname, prop) {
+export function File(name, picname, prop) {
 	prop = prop || {};
 	this.executable = d(prop.executable, false);
 	this.readable = d(prop.readable, true);
@@ -78,21 +80,23 @@ File.prototype = union(EventTarget.prototype, {
 		delete this.cmd_text[cmd];
 		return this;
 	},
-	addState: function (name, fun) {
+	addState: function (ctx, name, fun) {
 		name = this.uid + name;
-		//    this.ev.addListener(name,state.Event);
-		this.addListener(name, state.Event);
-		state.add(name, fun);
+		this.addListener(name, (e) => {
+			ctx.apply(e.type);
+		});
+		ctx.add(name, fun);
 		return this;
 	},
-	addStates: function (h) {
+	addStates: function (ctx, h) {
 		if (isObj(h)) {
 			for (var i in h) {
 				if (h.hasOwnProperty(i)) {
 					name = this.uid + i;
-					//          this.ev.addListener(name,state.Event);
-					this.addListener(name, state.Event);
-					state.add(name, h[i]);
+					this.addListener(name, (e) => {
+						ctx.apply(e.type);
+					});
+					ctx.add(name, h[i]);
 				}
 			}
 		} else {
@@ -108,7 +112,7 @@ File.prototype = union(EventTarget.prototype, {
 	},
 });
 
-function Item(name, intro, picname, prop) {
+export function Item(name, intro, picname, prop) {
 	prop = prop || {};
 	prop.poprefix = d(prop.poprefix, POPREFIX_ITEM);
 	File.call(this, name, picname, prop);
@@ -221,7 +225,7 @@ Item.prototype = union(File.prototype, {
 		return this;
 	},
 });
-function People(name, intro, picname, prop) {
+export function People(name, intro, picname, prop) {
 	//Inherit instance properties
 	prop = prop || {};
 	prop.poprefix = d(prop.poprefix, POPREFIX_PEOPLE);

@@ -1,3 +1,5 @@
+import { enterRoom } from './Room.js';
+
 _setupCommand("less", null, [ARGT.strictfile], function (args, vt) {
 	// event arg -> object
 	var r = vt.getContext(),
@@ -59,7 +61,7 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 			subroom: "inside-room",
 		};
 		if (room.children.length > 0 || !room.isRoot) {
-			tmpret = "";
+			let tmpret = "";
 			for (i = 0; i < room.children.length; i++) {
 				tmpret +=
 					span("color-room", room.children[i].toString() + "/") + "\n\t";
@@ -139,7 +141,7 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 			} else {
 				prtls = printLS(room);
 			}
-			pic = room.picture.copy();
+			let pic = room.picture.copy();
 			pic.addChildren(prtls.pics);
 			pic.setOneShotRenderClass("room");
 			vt.push_img(pic); // Display image of room
@@ -150,8 +152,8 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 			return _("room_unreachable");
 		}
 	} else {
-		prtls = printLS(t);
-		pic = t.picture.copy();
+		let prtls = printLS(t);
+		let pic = t.picture.copy();
 		pic.addChildren(prtls.pics);
 		pic.setOneShotRenderClass("room");
 		vt.push_img(pic); // Display image of room
@@ -217,8 +219,8 @@ _setupCommand("man", "help", [ARGT.cmdname], function (args, vt) {
 });
 
 _setupCommand("help", null, [ARGT.cmdname], function (args, vt) {
-	ret = _("cmd_help_begin") + "\n";
-	var c = _getUserCommands();
+	let ret = _("cmd_help_begin") + "\n";
+	let c = _getUserCommands();
 	for (var i = 0; i < c.length; i++) {
 		ret += "<pre>" + c[i] + "\t</pre>: " + _("help_" + c[i]) + "\n";
 	}
@@ -233,7 +235,7 @@ _setupCommand("exit", null, [], function (args, vt) {
 });
 
 _setupCommand("pwd", null, [], function (args, vt) {
-	var t = vt.getContext();
+	let t = vt.getContext();
 	vt.push_img(t.picture);
 	return _(POPREFIX_CMD + "pwd", [t.name])
 		.concat("\n")
@@ -242,17 +244,17 @@ _setupCommand("pwd", null, [], function (args, vt) {
 
 _setupCommand("cp", null, [ARGT.file, ARGT.filenew], function (args, vt) {
 	//event arg -> destination item
-	var t = vt.getContext();
+	let t = vt.getContext();
 	if (args.length != 2) {
 		return _("incorrect_syntax");
 	} else {
-		var src = t.traversee(args[0]);
-		var dest = t.traversee(args[1]);
+		let src = t.traversee(args[0]);
+		let dest = t.traversee(args[1]);
 		if (src.item) {
 			if (dest.item) {
 				return _("tgt_already_exists", [dest.item_name]);
 			} else if (dest.room) {
-				nut = src.item.copy(dest.item_name);
+				const nut = src.item.copy(dest.item_name);
 				dest.room.addItem(nut);
 				nut.fire_event(vt, "cp", args, 1);
 				src.item.fire_event(vt, "cp", args, 0);

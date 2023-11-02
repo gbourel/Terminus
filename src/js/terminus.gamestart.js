@@ -1,16 +1,20 @@
-var loadel;
-var game_version = "0.1beta";
-var cookie_version = "terminus" + game_version;
-function start_game() {
+const game_version = "0.2";
+const cookie_version = "terminus" + game_version;
+
+const TESTING=false;
+
+export function start_game(state) {
 	debug("start_game");
+	let loadel;
+
 	// prepare game loading
-	var has_save = state.startCookie(cookie_version);
-	var choices = [_("cookie_yes"), _("cookie_no")];
+	let has_save = state.startCookie(cookie_version);
+	let choices = [_("cookie_yes"), _("cookie_no")];
 	if (has_save) choices.unshift(_("cookie_yes_load"));
 
 	var game_start = function (vt, use_cookies) {
 		vt.muteSound();
-		var loaded = false;
+		let loaded = false;
 		if (pogencnt > 0) {
 			vt.show_msg(_("pogen_alert", pogencnt));
 		}
@@ -61,7 +65,7 @@ function start_game() {
 				vt.ask(
 					user.judged + "\n" + _("username_prompt"),
 					function (val) {
-						_setUserName(val);
+						_setUserName(state, val);
 						next();
 					},
 					{
@@ -78,7 +82,7 @@ function start_game() {
 				vt.ask(
 					_("useraddress_prompt"),
 					function (val) {
-						_setUserAddress(val);
+						_setUserAddress(state, val);
 						next();
 					},
 					{
@@ -153,6 +157,7 @@ function start_game() {
 
 	// build view
 	vt = new VTerm("term");
+	vt.state = state;
 	vt.soundbank = snd;
 	vt.charduration = 20;
 	vt.charfactor[" "] = 25; //on each nbsp , it will take 1/2 second

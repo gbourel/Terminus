@@ -1,6 +1,5 @@
-var TESTING = false;
 
-var ARGT = {
+const ARGT = {
 	dir: [0],
 	file: [1],
 	opt: [2],
