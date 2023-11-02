@@ -1,3 +1,2 @@
-import '/src/css/style.css'
-import '/src/css/terminus.css'
-
+import "/src/css/style.css";
+import "/src/css/terminus.css";
