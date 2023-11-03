@@ -1,15 +1,18 @@
 import "/src/css/style.css";
 import "/src/css/terminus.css";
 
-import { GameState } from './engine/GameState.js';
-import { initLvl1 } from './terminus.level1.js';
-import { start_game } from './terminus.gamestart.js';
+import { GameState } from "./engine/GameState.js";
+import { start_game } from "./terminus.gamestart.js";
+import { initLvl1 } from "./terminus.level1.js";
+import { initLvl2 } from "./terminus.level2.js";
 
 console.log("Game objects : init");
 
-let state = new GameState(); // GameState to initialize in game script
+const state = new GameState(); // GameState to initialize in game script
 
-state.map = initLvl1(state);
+state.map = {}
+initLvl1(state, state.map);
+initLvl2(state, state.map);
 
 start_game(state);
 

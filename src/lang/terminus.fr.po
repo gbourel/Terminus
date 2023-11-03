@@ -189,7 +189,7 @@ msgid "room_unreadable"
 msgstr "Un brouillard dans la pièce empêche de voir son contenu."
 
 msgid "people_shell"
-msgstr "Poulpe"
+msgstr "Huitre"
 
 msgid "people_shell_text"
 msgstr ""

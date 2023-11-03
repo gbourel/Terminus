@@ -1,3 +1,5 @@
+import { snd } from "./engine/Sound.js";
+
 /// sound set
 // The sounds in vterm are : choicemove choicemove question exclm endoftext dot learned space ret tag virg char
 snd.set("choicemove", "./snd/sfx_movement_ladder5a.", ["wav"]);

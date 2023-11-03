@@ -1,18 +1,29 @@
-import { enterRoom } from './Room.js';
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import {
+	ARGT,
+	_hasRightForCommand,
+	_lnCommand,
+	_setupCommand,
+	_getUserCommands,
+	cmd_done,
+} from "./Command.js";
+import { enterRoom } from "./Room.js";
+import { ReturnSequence } from "./ReturnSequence.js";
+import { _, pogencnt, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
 
 _setupCommand("less", null, [ARGT.strictfile], function (args, vt) {
 	// event arg -> object
-	var r = vt.getContext(),
+	let r = vt.getContext(),
 		ret = [];
 	if (args.length < 1) {
 		r.fire_event(vt, "less_no_arg", args, 0);
 		return _("cmd_less_no_arg");
 	} else {
-		for (var i = 0; i < args.length; i++) {
-			var tgt = r.traversee(args[i]);
-			var room = tgt.room;
+		for (let i = 0; i < args.length; i++) {
+			let tgt = r.traversee(args[i]);
+			let room = tgt.room;
 			if (room) {
-				var item = tgt.item;
+				let item = tgt.item;
 				if (item) {
 					if (item.readable || r.sudo) {
 						vt.push_img(item.picture, { index: ret.length }); // Display image of item
@@ -48,11 +59,11 @@ _setupCommand("less", null, [ARGT.strictfile], function (args, vt) {
 _lnCommand("cat", "less");
 _lnCommand("more", "less");
 _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
-	var t = vt.getContext();
-	var pic;
+	let t = vt.getContext();
+	let pic;
 	// console.log(t);
 	function printLS(room, render_classes) {
-		var ret = "",
+		let ret = "",
 			pics = {},
 			i;
 		render_classes = render_classes || {
@@ -84,10 +95,10 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 						tmpret,
 				]) + "\t\n";
 		}
-		var items = room.items.filter(function (o) {
+		let items = room.items.filter(function (o) {
 			return !o.people;
 		});
-		var peoples = room.items.filter(function (o) {
+		let peoples = room.items.filter(function (o) {
 			return o.people;
 		});
 		for (i = 0; i < peoples.length; i++) {
@@ -131,7 +142,7 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 	}
 
 	if (args.length > 0) {
-		var room = t.traversee(args[0]).room;
+		let room = t.traversee(args[0]).room;
 		if (room) {
 			if (!(room.readable || t.sudo)) {
 				return _("permission_denied") + " " + _("room_unreadable");
@@ -141,7 +152,7 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 			} else {
 				prtls = printLS(room);
 			}
-			let pic = room.picture.copy();
+			const pic = room.picture.copy();
 			pic.addChildren(prtls.pics);
 			pic.setOneShotRenderClass("room");
 			vt.push_img(pic); // Display image of room
@@ -152,8 +163,8 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 			return _("room_unreachable");
 		}
 	} else {
-		let prtls = printLS(t);
-		let pic = t.picture.copy();
+		const prtls = printLS(t);
+		const pic = t.picture.copy();
 		pic.addChildren(prtls.pics);
 		pic.setOneShotRenderClass("room");
 		vt.push_img(pic); // Display image of room
@@ -162,7 +173,7 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 	}
 });
 _setupCommand("cd", "dir", [ARGT.dir], function (args, vt) {
-	var t = vt.getContext();
+	let t = vt.getContext();
 	if (args.length > 1) {
 		return _("cmd_cd_flood");
 	} else if (args[0] === "-") {
@@ -189,8 +200,8 @@ _setupCommand("cd", "dir", [ARGT.dir], function (args, vt) {
 		vt.push_img(img.room_none);
 		return _("cmd_cd", enterRoom(t, vt));
 	} else {
-		var dest = t.traversee(args[0]);
-		var room = dest.room;
+		let dest = t.traversee(args[0]);
+		let room = dest.room;
 		if (room && !dest.item_name) {
 			if (room.executable) {
 				room.previous = t;
@@ -220,8 +231,8 @@ _setupCommand("man", "help", [ARGT.cmdname], function (args, vt) {
 
 _setupCommand("help", null, [ARGT.cmdname], function (args, vt) {
 	let ret = _("cmd_help_begin") + "\n";
-	let c = _getUserCommands();
-	for (var i = 0; i < c.length; i++) {
+	const c = _getUserCommands();
+	for (let i = 0; i < c.length; i++) {
 		ret += "<pre>" + c[i] + "\t</pre>: " + _("help_" + c[i]) + "\n";
 	}
 	return ret;
@@ -235,7 +246,7 @@ _setupCommand("exit", null, [], function (args, vt) {
 });
 
 _setupCommand("pwd", null, [], function (args, vt) {
-	let t = vt.getContext();
+	const t = vt.getContext();
 	vt.push_img(t.picture);
 	return _(POPREFIX_CMD + "pwd", [t.name])
 		.concat("\n")
@@ -244,12 +255,12 @@ _setupCommand("pwd", null, [], function (args, vt) {
 
 _setupCommand("cp", null, [ARGT.file, ARGT.filenew], function (args, vt) {
 	//event arg -> destination item
-	let t = vt.getContext();
+	const t = vt.getContext();
 	if (args.length != 2) {
 		return _("incorrect_syntax");
 	} else {
-		let src = t.traversee(args[0]);
-		let dest = t.traversee(args[1]);
+		const src = t.traversee(args[0]);
+		const dest = t.traversee(args[1]);
 		if (src.item) {
 			if (dest.item) {
 				return _("tgt_already_exists", [dest.item_name]);
@@ -278,17 +289,17 @@ _setupCommand("cp", null, [ARGT.file, ARGT.filenew], function (args, vt) {
 _setupCommand("mv", null, [ARGT.strictfile, ARGT.file], function (args, vt) {
 	// event arg -> object (source)
 	// console.log(args);
-	var t = vt.getContext();
-	var ret = [],
+	let t = vt.getContext();
+	let ret = [],
 		src,
 		dest = t.traversee(args[args.length - 1]);
 	if (dest.item_name && args.length > 2) {
 		ret.push(_("cmd_mv_flood"));
 	} else {
-		var retfireables = [],
+		let retfireables = [],
 			rename,
 			overwritten;
-		for (var i = 0; i < args.length - 1; i++) {
+		for (let i = 0; i < args.length - 1; i++) {
 			src = t.traversee(args[i]);
 			if (src.room) {
 				if (src.item && dest.room) {
@@ -377,19 +388,19 @@ _setupCommand("mv", null, [ARGT.strictfile, ARGT.file], function (args, vt) {
 
 _setupCommand("rm", null, [ARGT.file], function (args, vt) {
 	// event arg -> object
-	var t = vt.getContext();
+	let t = vt.getContext();
 	if (args.length < 1) {
 		return _("cmd_rm_miss");
 	} else {
-		var stringtoreturn = "";
-		var room, idx;
-		for (var i = 0; i < args.length; i++) {
-			var tgt = t.traversee(args[i]);
+		let stringtoreturn = "";
+		let room, idx;
+		for (let i = 0; i < args.length; i++) {
+			let tgt = t.traversee(args[i]);
 			room = tgt.room;
 			idx = tgt.item_idx;
 			if (idx > -1) {
 				if (room.writable) {
-					var removedItem = room.removeItemByIdx(idx);
+					let removedItem = room.removeItemByIdx(idx);
 					if (removedItem) {
 						room.fire_event(vt, "rm", args, i);
 						if ("rm" in removedItem.cmd_text) {
@@ -415,20 +426,20 @@ _setupCommand(
 	null,
 	[ARGT.pattern, ARGT.strictfile],
 	function (args, vt) {
-		var t = vt.getContext();
-		var word_to_find = args[0];
-		var filelist = args.slice(1);
-		var ret = [];
-		for (var i = 0; i < filelist.length; i++) {
-			var fname = filelist[i];
-			var tgt = t.traversee(fname);
+		let t = vt.getContext();
+		let word_to_find = args[0];
+		let filelist = args.slice(1);
+		let ret = [];
+		for (let i = 0; i < filelist.length; i++) {
+			let fname = filelist[i];
+			let tgt = t.traversee(fname);
 			if (tgt.item) {
-				var item_to_find_in_text = tgt.item.cmd_text.less;
-				var line_array = [];
-				var found = false;
+				let item_to_find_in_text = tgt.item.cmd_text.less;
+				let line_array = [];
+				let found = false;
 				if (tgt.item.readable || t.sudo) {
 					if (tgt.item.cmd_text.grep) {
-						var longest_word = "";
+						let longest_word = "";
 						if (word_to_find.length > 2) {
 							word_to_find.split(" ").filter(function (w) {
 								if (longest_word.length < w.length) longest_word = w;
@@ -460,7 +471,7 @@ _setupCommand(
 					tgt.item.fire_event(vt, "unreadable");
 				}
 				line_array = item_to_find_in_text.split("\n");
-				var return_arr = line_array.filter(function (line) {
+				let return_arr = line_array.filter(function (line) {
 					return line.indexOf(word_to_find) >= 0;
 				});
 				if (return_arr.length > 0) ret.push(return_arr.join("\n"));
@@ -473,12 +484,12 @@ _setupCommand(
 );
 
 _setupCommand("touch", null, [ARGT.filenew], function (args, vt) {
-	var t = vt.getContext();
+	let t = vt.getContext();
 	if (args.length < 1) {
 		return _("cmd_touch_nothing");
 	} else {
-		var createdItemsString = "";
-		for (var i = args.length - 1; i >= 0; i--) {
+		let createdItemsString = "";
+		for (let i = args.length - 1; i >= 0; i--) {
 			if (t.getItemFromName(args[i])) {
 				return _("tgt_already_exists", [args[i]]);
 			} else if (args[i].length > 0) {
@@ -496,9 +507,9 @@ _setupCommand("touch", null, [ARGT.filenew], function (args, vt) {
 
 _setupCommand("mkdir", null, [ARGT.dirnew], function (args, vt) {
 	//event arg -> created dir
-	var t = vt.getContext();
+	let t = vt.getContext();
 	if (args.length === 1) {
-		var tr = t.traversee(args[0]);
+		let tr = t.traversee(args[0]);
 		if (tr.room.writable) {
 			if (!tr.item) {
 				tr.room.addPath(
@@ -519,9 +530,9 @@ _setupCommand(
 	null,
 	[ARGT.file.concat(["*.zip"])],
 	function (args, vt) {
-		var t = vt.getContext();
+		let t = vt.getContext();
 		if (args.length === 1) {
-			var tr = t.traversee(args[0]);
+			let tr = t.traversee(args[0]);
 			if (tr.item && tr.room.writable) {
 				tr.item.fire_event(vt, "unzip", args, 0);
 				return "";

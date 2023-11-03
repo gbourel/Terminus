@@ -1,3 +1,5 @@
+import { addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+
 //function Sound(src) {
 //    this.sound = document.createElement("audio");
 //    this.sound.src = src;
@@ -13,7 +15,7 @@
 //    }
 //}
 
-var audiotype = { mp3: "mpeg", ogg: "ogg", wav: "wav" };
+const audiotype = { mp3: "mpeg", ogg: "ogg", wav: "wav" };
 
 function SoundBank(callback) {
 	this.ldr = 0;
@@ -26,7 +28,7 @@ SoundBank.prototype = {
 		var t = this;
 
 		extra = d(extra, {});
-		required = d(extra.required, true);
+		const required = d(extra.required, true);
 
 		//    t.dict[ref]=prEl(document.body,'audio',{autoplay:'autoplay',preload:'auto',id:'snd'+ref});
 		//    t.dict[ref]=prEl(document.body,'audio',{preload:'auto',id:'snd'+ref});
@@ -73,3 +75,5 @@ SoundBank.prototype = {
 		}
 	},
 };
+
+export const snd = new SoundBank();

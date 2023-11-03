@@ -1,4 +1,7 @@
-import { EventTarget } from './EventTarget.js';
+import { addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import { EventTarget } from "./EventTarget.js";
+import { Pic } from "./Pic.js";
+import { _, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
 
 var global_uid = {};
 function getObjUID(name) {
@@ -154,12 +157,11 @@ Item.prototype = union(File.prototype, {
 		this.exec_function = undefined;
 	},
 	exec: function (args, room, vt) {
-		var it = this;
 		this.fire_event(vt, "exec", args);
 		if (this.exec_function) {
 			return this.exec_function(this, args, room, vt);
 		} else {
-			return cmd_done(vt, [[it, 0]], "", "exec", args);
+			return cmd_done(vt, [[this, 0]], "", "exec", args);
 		}
 	},
 	setPo: function (name, vars) {

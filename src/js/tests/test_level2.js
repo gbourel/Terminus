@@ -1,7 +1,7 @@
 add_test(function (next) {
 	console.log("TEST CMD GREP (find sudo password)");
 	enterRoom($morekernel, vt);
-	_addGroup("grep");
+	user.addGroup("grep");
 	vt.set_line("ls");
 	vt.enter();
 	vt.set_line("grep t *");

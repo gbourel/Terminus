@@ -1,4 +1,7 @@
-function Music(soundbank) {
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import { snd } from './Sound.js';
+
+export function Music(soundbank) {
 	this.current = 0;
 	this.currentmusic = null;
 	this.soundbank = soundbank;
@@ -26,10 +29,10 @@ Music.prototype = {
 	},
 	play: function (ref, attrs) {
 		attrs = d(attrs, {});
-		n = this.soundbank.get(ref);
+		let n = this.soundbank.get(ref);
 		if (this.current !== ref) {
 			console.log("play " + ref);
-			c = this.soundbank.get(this.current);
+			let c = this.soundbank.get(this.current);
 			if (c) {
 				c.pause();
 				c.currentTime = 0;
@@ -56,3 +59,4 @@ Music.prototype = {
 		}
 	},
 };
+export const music = new Music(snd);

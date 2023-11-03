@@ -1,14 +1,26 @@
+import {
+	ARGT,
+	_hasRightForCommand,
+	_lnCommand,
+	_setupCommand,
+	_getUserCommands,
+	_getCommandFunc,
+	_getCommandSyntax,
+	_argType,
+	cmd_done,
+} from "./Command.js";
+
 const regexp_str = /^['"].*['"]$/;
 const regexp_star = /.*\*.*/;
 
 function _expandArgs(args, r) {
-	var newargs = [],
+	let newargs = [],
 		room,
 		lastcomponent,
 		path,
 		re;
 	//  console.log('_expandArgs',args,r);
-	for (var i = 0; i < args.length; i++) {
+	for (let i = 0; i < args.length; i++) {
 		//    console.log(args[i]);
 		if (regexp_str.test(args[i])) {
 			newargs.push(args[i].slice(1, args[i].length - 1));
@@ -21,8 +33,8 @@ function _expandArgs(args, r) {
 			if (room && lastcomponent) {
 				//        console.log(lastcomponent);
 				path = roomp[2];
-				var expanded = [];
-				for (var j = 0; j < room.items.length; j++) {
+				let expanded = [];
+				for (let j = 0; j < room.items.length; j++) {
 					if (re.test(room.items[j].toString())) {
 						expanded.push(
 							path + (path.length ? "/" : "") + room.items[j].toString(),
@@ -51,9 +63,9 @@ function _validArgs(cmd, args, r) {
 		return false;
 	}
 }
-function commonprefix(array) {
+export function commonprefix(array) {
 	//https://stackoverflow.com/questions/1916218/find-the-longest-common-starting-substring-in-a-set-of-strings/1917041#1917041
-	var A = array.concat().sort(),
+	let A = array.concat().sort(),
 		a1 = A[0],
 		a2 = A[A.length - 1],
 		L = a1.length,
@@ -61,21 +73,21 @@ function commonprefix(array) {
 	while (i < L && a1.charAt(i) === a2.charAt(i)) i++;
 	return a1.substring(0, i);
 }
-function _completeArgs(args, argidx, tocomplete, r, compl) {
+export function _completeArgs(args, argidx, tocomplete, r, compl) {
 	// return completion matches
-	var search_room = tocomplete.substring(0, 1) == "~" ? $home : r;
+	let search_room = tocomplete.substring(0, 1) == "~" ? $home : r;
 	tocomplete = tocomplete.replace(/\*/g, ".*");
 	//Iterate through each room
-	var new_room,
+	let new_room,
 		substring_matches = [],
 		cmd = args[0];
-	var syntax = [ARGT.cmdname].concat(_getCommandSyntax(cmd));
+	let syntax = [ARGT.cmdname].concat(_getCommandSyntax(cmd));
 
 	if (_argType(syntax, argidx, ARGT.cmdname)) {
-		var cmds = _getUserCommands();
+		let cmds = _getUserCommands();
 		//    tocomplete=args.shift();
 		idx = 0;
-		for (var i = 0; i < cmds.length; i++) {
+		for (let i = 0; i < cmds.length; i++) {
 			if (compl(cmds[i])) {
 				substring_matches.push(cmds[i] + (cmds[i] == tocomplete ? " " : "")); //space is here to say : if only one found, then go to next arg
 			}
@@ -90,7 +102,7 @@ function _completeArgs(args, argidx, tocomplete, r, compl) {
 			})
 			.slice(0, 20);
 	}
-	var path_rooms = tocomplete.split("/");
+	let path_rooms = tocomplete.split("/");
 	if (
 		_argType(syntax, argidx, ARGT.dir) &&
 		path_rooms.length == 1 &&
@@ -98,7 +110,7 @@ function _completeArgs(args, argidx, tocomplete, r, compl) {
 	) {
 		substring_matches.push("..");
 	}
-	for (room_num = 0; room_num < path_rooms.length; room_num++) {
+	for (let room_num = 0; room_num < path_rooms.length; room_num++) {
 		new_room = search_room.can_cd(path_rooms[room_num]);
 		if (new_room) {
 			search_room = new_room;
@@ -115,17 +127,9 @@ function _completeArgs(args, argidx, tocomplete, r, compl) {
 					_argType(syntax, argidx, ARGT.file) ||
 					_argType(syntax, argidx, ARGT.dir)
 				) {
-					for (
-						child_num = 0;
-						child_num < search_room.children.length;
-						child_num++
-					) {
-						if (
-							compl(search_room.children[child_num].name, path_rooms[room_num])
-						) {
-							substring_matches.push(
-								search_room.children[child_num].name + "/",
-							);
+					for (let room of search_room.children) {
+						if (compl(room.name, path_rooms[room_num])) {
+							substring_matches.push(room.name + "/");
 						}
 					}
 					//Compare to this room's items
@@ -133,15 +137,9 @@ function _completeArgs(args, argidx, tocomplete, r, compl) {
 						_argType(syntax, argidx, ARGT.strictfile) ||
 						_argType(syntax, argidx, ARGT.file)
 					) {
-						for (
-							item_num = 0;
-							item_num < search_room.items.length;
-							item_num++
-						) {
-							if (
-								compl(search_room.items[item_num].name, path_rooms[room_num])
-							) {
-								substring_matches.push(search_room.items[item_num].name);
+						for (let item of search_room.items) {
+							if (compl(item.name, path_rooms[room_num])) {
+								substring_matches.push(item.name);
 							}
 						}
 					}
@@ -151,8 +149,8 @@ function _completeArgs(args, argidx, tocomplete, r, compl) {
 	}
 	return substring_matches;
 }
-function _getCommands(r) {
-	var ret = [],
+export function _getCommands(r) {
+	let ret = [],
 		cmd,
 		i;
 	for (i = 0; i < r.items.length; i++) {
@@ -162,28 +160,26 @@ function _getCommands(r) {
 	}
 	return ret.concat(_getUserCommands());
 }
-function _parse_exec(vt, arrs) {
-	var t = vt.getContext();
-	var cmd = arrs[0];
-	var sudo = false;
-	if (arrs[0] == "sudo") {
+export function _parse_exec(vt, arrs) {
+	let t = vt.getContext();
+	let cmd = arrs[0];
+	let sudo = false;
+	if (arrs[0] === "sudo") {
 		arrs.shift();
 		cmd = arrs[0];
 		sudo = true;
 	}
-	var ret = "";
-	var r = t;
+	let ret = "";
+	let r = t;
 	arrs.push(arrs.pop().replace(/\/$/, ""));
-	//  console.log('_parse_exec',arrs,r);
-	var args = _expandArgs(arrs.slice(1), r);
+	let args = _expandArgs(arrs.slice(1), r);
 	// find the program to launch
-	var cmdexec = null;
+	let cmdexec = null;
 	if (cmd.match(/^(\.\/|\/)/)) {
 		//find a local program
-		//      console.log('matched');
-		var tr = r.traversee(cmd);
-		var item = tr.item,
-			r = tr.room;
+		let tr = r.traversee(cmd);
+		let item = tr.item;
+		r = tr.room;
 		if (item && item.executable) {
 			cmdexec = function (args, vt) {
 				return item.exec(args, r, vt);
@@ -192,7 +188,7 @@ function _parse_exec(vt, arrs) {
 	}
 	if (!cmdexec && (sudo || _hasRightForCommand(cmd, r))) {
 		//find a builtin program
-		cmdexec = _getCommandFunction(cmd);
+		cmdexec = _getCommandFunc(cmd);
 	}
 	// test command eligibility when no existant cmd
 	if (!cmdexec) {
@@ -213,8 +209,8 @@ function _parse_exec(vt, arrs) {
 		return ret;
 	}
 
-	var tgt, cur;
-	for (var i = 0; i < args.length; i++) {
+	let tgt, cur;
+	for (let i = 0; i < args.length; i++) {
 		tgt = t.traversee(args[i]);
 		cur = tgt.room;
 		if (!cur || tgt.item || sudo) {
@@ -230,9 +226,9 @@ function _parse_exec(vt, arrs) {
 		}
 	}
 
-	var run_cmd = function () {
+	let run_cmd = function () {
 		if (sudo) t.sudo = true;
-		var text_to_display = cmdexec(args, vt);
+		let text_to_display = cmdexec(args, vt);
 		if (text_to_display) {
 			ret = text_to_display;
 		} else if (cmd in r.cmd_text) {
@@ -243,8 +239,8 @@ function _parse_exec(vt, arrs) {
 	};
 
 	if (sudo && !t.supass) {
-		var passwordcallback = function (passwd, elem) {
-			var ret = "";
+		let passwordcallback = function (passwd, elem) {
+			let ret = "";
 			// console.log(passwd);
 			if (passwd == "IHTFP") {
 				t.supass = true;

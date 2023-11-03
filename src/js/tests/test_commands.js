@@ -1,6 +1,6 @@
 add_test(function (next) {
 	console.log("TEST CMD GREP");
-	_addGroup("grep");
+	user.addGroup("grep");
 	vt.set_line("cd ~");
 	vt.enter();
 	vt.set_line("grep cd Palourde");
@@ -10,11 +10,11 @@ add_test(function (next) {
 
 add_test(function (next) {
 	console.log("TEST CMDS TOUCH, COPY, MKDIR, MV, RM");
-	_addGroup("cp");
-	_addGroup("mkdir");
-	_addGroup("mv");
-	_addGroup("rm");
-	_addGroup("touch");
+	user.addGroup("cp");
+	user.addGroup("mkdir");
+	user.addGroup("mv");
+	user.addGroup("rm");
+	user.addGroup("touch");
 
 	vt.set_line("cd ~");
 	vt.enter();

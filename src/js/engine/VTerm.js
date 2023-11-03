@@ -1,3 +1,10 @@
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import { _, pogencnt, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
+import { _parse_exec, _completeArgs, commonprefix, _getCommands } from "./Parse.js";
+import { _hasRightForCommand } from "./Command.js";
+import { Pic } from "./Pic.js";
+import { user } from "./User.js";
+
 /* Terminal interface which solve completion problem */
 var SAFE_BROKEN_TEXT = true;
 function addspace(i) {
@@ -152,40 +159,39 @@ VTerm.prototype = {
 		return this;
 	},
 	unset_img: function () {
-		var t = this;
-		if (t.imgs.length > 0) {
-			t.imgs.pop();
+		if (this.imgs.length > 0) {
+			this.imgs.pop();
 		}
 	},
 	show_img: function (opt) {
 		opt = opt || {};
-		var t = this;
-		var idx = d(opt.index, -1);
-		var im;
-		var imgs = t.imgs[idx];
+		const t = this;
+		const idx = d(opt.index, -1);
+		let im;
+		const imgs = t.imgs[idx];
 		if (imgs && imgs.length > 0) {
-			var onload = function () {
+			const onload = function () {
 				//        console.log('load');
 				t.scrl(1000);
 			};
-			var c = addEl(t.monitor, "div", "img-container");
+			const c = addEl(t.monitor, "div", "img-container");
 			while ((im = imgs.shift())) {
 				im.render(c, onload);
 			}
 		}
 	},
 	epic_img_enter: function (i, clss, scrl_timeout, callback) {
-		var t = this;
+		const t = this;
 		t.scrl_lock = true;
-		var c = addEl(t.monitor, "div", "img-container " + clss);
-		pic = new Pic(i);
+		const c = addEl(t.monitor, "div", "img-container " + clss);
+		const pic = new Pic(i);
 		pic.render(c, function () {
 			c.className += " loaded";
 			setTimeout(function () {
 				t.scrl_lock = false;
 				t.scrl();
 				if (def(callback)) {
-					callback(vt);
+					callback(t);
 				}
 			}, scrl_timeout);
 		});
@@ -283,26 +289,23 @@ VTerm.prototype = {
 		// ---- --- - -- --- -- ---- - -- --- -- -
 	},
 	disable_input: function () {
-		//disable can act as a mutex, if a widget don't get true then it shouldn't enable input
-		var t = this;
-		if (!t.disabled.input) {
-			t.disabled.input = true;
-			t.btn_clear.setAttribute("disabled", "");
-			t.btn_tab.setAttribute("disabled", "");
-			t.inputdiv.removeChild(t.cmdline);
+		if (!this.disabled.input) {
+			this.disabled.input = true;
+			this.btn_clear.setAttribute("disabled", "");
+			this.btn_tab.setAttribute("disabled", "");
+			this.inputdiv.removeChild(this.cmdline);
 			return true;
 		}
 		return false;
 	},
 	enable_input: function () {
-		var t = this;
-		if (t.disabled.input) {
-			t.disabled.input = false;
-			t.inputdiv.prepend(t.cmdline);
-			t.btn_clear.removeAttribute("disabled");
-			t.btn_tab.removeAttribute("disabled");
-			t.enterKey = t.enter;
-			t.input.focus();
+		if (this.disabled.input) {
+			this.disabled.input = false;
+			this.inputdiv.prepend(this.cmdline);
+			this.btn_clear.removeAttribute("disabled");
+			this.btn_tab.removeAttribute("disabled");
+			this.enterKey = this.enter;
+			this.input.focus();
 			return true;
 		}
 		return false;
@@ -322,7 +325,7 @@ VTerm.prototype = {
 		cnt,
 		opt,
 	) {
-		l = txttab.shift();
+		let l = txttab.shift();
 		var t = this;
 		t.busy = true;
 		if (def(l)) {
@@ -474,22 +477,21 @@ VTerm.prototype = {
 			// console.log(msg, opt);
 			opt = opt || {};
 			var cb;
-			var t = this;
-			t.busy = true;
-			t.loop_waiting();
+			this.busy = true;
+			this.loop_waiting();
 			if (typeof msg != "string") {
 				cb = msg[1];
 				msg = msg[0];
 			}
-			var el = d(opt.el, t.monitor);
+			var el = d(opt.el, this.monitor);
 			var dependant = d(opt.dependant, true);
 			var safe = d(opt.safe, false);
 			var direct = d(opt.direct, false);
-			t.ghostel = addEl(t.ghost_monitor, "p");
-			t.current_msg = addEl(el, "p", "msg");
+			this.ghostel = addEl(this.ghost_monitor, "p");
+			this.current_msg = addEl(el, "p", "msg");
 			if (msg.nodeType == 1) {
-				t.current_msg.appendChild(msg);
-				t.ghostel.innerHTML = msg.outerHTML.replace(
+				this.current_msg.appendChild(msg);
+				this.ghostel.innerHTML = msg.outerHTML.replace(
 					/<div class='inmsg'.*><\/div>/,
 					"",
 				);
@@ -499,36 +501,36 @@ VTerm.prototype = {
 				if (opt.cb) {
 					opt.cb();
 				}
-				t.busy = false;
+				this.busy = false;
 			} else {
-				txt = msg.toString(); //ensure in case we have an object
+				let txt = msg.toString(); //ensure in case we have an object
 				txt = txt.replace(/(#[^#]+#)/g, '<i class="hashtag"> $1 </i>');
-				txttab = txt.split("");
-				t.msg_idx++;
+				const txttab = txt.split("");
+				this.msg_idx++;
 				txt = txt
 					.replace(/\t/g, "&nbsp;&nbsp;")
 					.replace(/\n/g, "<br>")
 					.replace(/ /g, "&nbsp;");
-				t.ghostel.innerHTML = txt
+				this.ghostel.innerHTML = txt
 					.replace(/<div class='inmsg'.*><\/div>/, "")
 					.replace(/(<br>)/g, "<&nbsp;><br>")
 					.replace(/[«»]/g, '"')
 					.replace(/(\.\.\.)/g, "<br>");
 				if (direct) {
-					t.current_msg.innerHTML = txt;
+					this.current_msg.innerHTML = txt;
 					if (cb) {
 						cb();
 					}
 					if (opt.cb) {
 						opt.cb();
 					}
-					t.busy = false;
-					t.scrl();
+					this.busy = false;
+					this.scrl();
 				} else {
 					// progressive
-					t._show_chars(
-						t.msg_idx,
-						t.current_msg,
+					this._show_chars(
+						this.msg_idx,
+						this.current_msg,
 						txttab,
 						dependant,
 						safe,
@@ -553,7 +555,7 @@ VTerm.prototype = {
 		var l = t.get_line(),
 			pos = t.input.selectionStart;
 		var hlidxs = [];
-		args = l.split(" ");
+		const args = l.split(" ");
 		t.suggestion_selected = null;
 		if (args.length > 0) {
 			var offset = 0,
@@ -713,26 +715,24 @@ VTerm.prototype = {
 		}
 	},
 	enter: function () {
-		// Enter -> exec command
-		var t = this;
-		t.playSound("enter");
-		var l = t.get_line().replace(/\s+$/, "");
+		this.playSound("enter");
+		var l = this.get_line().replace(/\s+$/, "");
 		if (l.length > 0) {
-			var pr = t.input;
-			var mon = t.monitor;
-			t.monitor = addEl(mon, "div", "screen");
-			t.histindex = 0;
-			t.show_previous_prompt(pr.value);
-			t.history.push(pr.value);
+			var pr = this.input;
+			var mon = this.monitor;
+			this.monitor = addEl(mon, "div", "screen");
+			this.histindex = 0;
+			this.show_previous_prompt(pr.value);
+			this.history.push(pr.value);
 			var args = l.split(" ");
-			t.echo(_parse_exec(t, args));
-			t.set_line("");
-			t.hide_suggestions();
+			this.echo(_parse_exec(this, args));
+			this.set_line("");
+			this.hide_suggestions();
 			//t.show_suggestions(_getCommands(t.context).map(addspace));
-			t.monitor = mon;
+			this.monitor = mon;
 		}
 	},
-	enterKey: this.enter,
+	enterKey: null,
 	/*****************/
 	/** Prompt behavior part **/
 	/*****************/
@@ -958,8 +958,8 @@ VTerm.prototype = {
 		var choices_btn = [];
 		var curidx = 0;
 		opts = d(opts, {});
-		disabled_choices = d(opts.disabled_choices, []);
-		direct = d(opts.direct, false);
+		const disabled_choices = d(opts.disabled_choices, []);
+		const direct = d(opts.direct, false);
 		// console.log(opts.disabled_choices);
 		while (disabled_choices.indexOf(curidx) > -1) {
 			curidx++;
@@ -1019,7 +1019,7 @@ VTerm.prototype = {
 
 		for (var i = 0; i < choices.length; i++) {
 			if (disabled_choices.indexOf(i) == -1) {
-				cho = addEl(t.choose_input, "div", "choice");
+				const cho = addEl(t.choose_input, "div", "choice");
 				choices[i] = choices[i];
 				choices_btn.push(
 					addEl(cho, "input", {
@@ -1245,3 +1245,7 @@ VTerm.prototype = {
 		this.set_line(shuffleStr(msg, complexicity));
 	},
 };
+
+VTerm.prototype.enterKey = VTerm.prototype.enter;
+
+export const vt = new VTerm("term");

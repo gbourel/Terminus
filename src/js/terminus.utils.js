@@ -1,30 +1,33 @@
+import { vt } from './engine/VTerm.js';
+import { global_fireables } from './engine/Command.js';
+
 /*
  * recurrent things
  **/
-var debug = console.info;
+export const debug = console.info;
 
-function getTime() {
+export function getTime() {
 	debug("[utils] getTime");
 	//  return new Date().toLocaleFormat('%Hh%M');
-	var d = new Date();
+	let d = new Date();
 	return d.getHours() + "h" + d.getMinutes();
 }
 
-function learn(vt, cmds, re) {
+export function learn(vt, cmds, re) {
 	debug("[utils] learn", vt, cmds, re);
 	if (typeof cmds == "string") {
 		cmds = [cmds];
 	}
 	if (!re) {
 		global_fireables.done.push(function () {
-			for (var j = 0; j < cmds.length; j++) {
+			for (let j = 0; j < cmds.length; j++) {
 				vt.badge(_("you_learn", [cmds[j]]), _("you_learn_desc", [cmds[j]]));
 				vt.playSound("learned");
 			}
 		});
 	}
 }
-function unlock(vt, unlocked, re) {
+export function unlock(vt, unlocked, re) {
 	debug("[utils] unlock", vt, unlocked, re);
 	if (!re) {
 		global_fireables.done.push(function () {
@@ -33,11 +36,11 @@ function unlock(vt, unlocked, re) {
 		});
 	}
 }
-function mesg(msg, re, opt) {
+export function mesg(msg, re, opt) {
 	debug("[utils] mesg", msg, re, opt);
 	if (!re) {
 		opt = opt || {};
-		var fu = function () {
+		let fu = function () {
 			setTimeout(function () {
 				vt.show_msg(
 					'<div class="mesg">' +
@@ -56,17 +59,17 @@ function mesg(msg, re, opt) {
 		}
 	}
 }
-function ondone(fu) {
+export function ondone(fu) {
 	debug("[utils] ondone", fu);
 	global_fireables.done.push(fu);
 }
-function success(vt, txt, re) {
+export function success(vt, txt, re) {
 	debug("[utils] success", vt, txt, re);
 	if (!re) {
 		global_fireables.done.push(function () {
 			vt.playSound("success");
 			vt.badge(_(txt + "_success_title"), _(txt + "_success_text"));
-			var m = txt + "_congrat_mesg";
+			let m = txt + "_congrat_mesg";
 			if (m in dialog) {
 				mesg(_(m));
 			}

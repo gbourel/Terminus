@@ -1,4 +1,4 @@
-function ReturnSequence(list) {
+export function ReturnSequence(list) {
 	this.seq = list;
 	this.isReturnSequence = true;
 	this.idx = 0;

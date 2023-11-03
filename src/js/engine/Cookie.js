@@ -1,4 +1,7 @@
-function Cookie(name, minutes) {
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import { debug } from "../terminus.utils.js";
+
+export function Cookie(name, minutes) {
 	debug("Cookie", name, minutes);
 	this.name = name;
 	this.minutes = minutes;

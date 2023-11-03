@@ -9,8 +9,6 @@
  */
 
 (function () {
-	"use strict";
-
 	/** Global Methods **/
 	/***************************************************************************/
 
@@ -488,7 +486,6 @@
 	 * @param {Object} o Passed in properties for this group.
 	 */
 	var Howl = function (o) {
-		var self = this;
 
 		// Throw an error if no source is provided.
 		if (!o.src || o.src.length === 0) {
@@ -498,7 +495,7 @@
 			return;
 		}
 
-		self.init(o);
+		this.init(o);
 	};
 	Howl.prototype = {
 		/**
@@ -588,32 +585,31 @@
 		 * @return {Howler}
 		 */
 		load: function () {
-			var self = this;
 			var url = null;
 
 			// If no audio is available, quit immediately.
 			if (Howler.noAudio) {
-				self._emit("loaderror", null, "No audio support.");
+				this._emit("loaderror", null, "No audio support.");
 				return;
 			}
 
 			// Make sure our source is in an array.
-			if (typeof self._src === "string") {
-				self._src = [self._src];
+			if (typeof this._src === "string") {
+				this._src = [this._src];
 			}
 
 			// Loop through the sources and pick the first one that is compatible.
-			for (var i = 0; i < self._src.length; i++) {
+			for (var i = 0; i < this._src.length; i++) {
 				var ext, str;
 
-				if (self._format && self._format[i]) {
+				if (this._format && this._format[i]) {
 					// If an extension was specified, use that instead.
-					ext = self._format[i];
+					ext = this._format[i];
 				} else {
 					// Make sure the source is a string.
-					str = self._src[i];
+					str = this._src[i];
 					if (typeof str !== "string") {
-						self._emit(
+						this._emit(
 							"loaderror",
 							null,
 							"Non-string found in selected audio sources - ignoring.",
@@ -641,13 +637,13 @@
 
 				// Check if this extension is available.
 				if (ext && Howler.codecs(ext)) {
-					url = self._src[i];
+					url = this._src[i];
 					break;
 				}
 			}
 
 			if (!url) {
-				self._emit(
+				this._emit(
 					"loaderror",
 					null,
 					"No codec support for selected audio sources.",
@@ -655,8 +651,8 @@
 				return;
 			}
 
-			self._src = url;
-			self._state = "loading";
+			this._src = url;
+			this._state = "loading";
 
 			// If the hosting page is HTTPS and the source isn't,
 			// drop down to HTML5 Audio to avoid Mixed Content errors.
@@ -664,19 +660,19 @@
 				window.location.protocol === "https:" &&
 				url.slice(0, 5) === "http:"
 			) {
-				self._html5 = true;
-				self._webAudio = false;
+				this._html5 = true;
+				this._webAudio = false;
 			}
 
 			// Create a new sound object and add it to the pool.
-			new Sound(self);
+			new Sound(this);
 
 			// Load and decode the audio data for playback.
-			if (self._webAudio) {
-				loadBuffer(self);
+			if (this._webAudio) {
+				loadBuffer(this);
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1305,20 +1301,19 @@
 		 * @return {Howl}
 		 */
 		_stopFade: function (id) {
-			var self = this;
-			var sound = self._soundById(id);
+			var sound = this._soundById(id);
 
 			if (sound && sound._interval) {
-				if (self._webAudio) {
+				if (this._webAudio) {
 					sound._node.gain.cancelScheduledValues(Howler.ctx.currentTime);
 				}
 
 				clearInterval(sound._interval);
 				sound._interval = null;
-				self._emit("fade", id);
+				this._emit("fade", id);
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1330,21 +1325,20 @@
 		 * @return {Howl/Boolean} Returns self or current loop value.
 		 */
 		loop: function () {
-			var self = this;
 			var args = arguments;
 			var loop, id, sound;
 
 			// Determine the values for loop and id.
 			if (args.length === 0) {
 				// Return the grou's loop value.
-				return self._loop;
+				return this._loop;
 			} else if (args.length === 1) {
 				if (typeof args[0] === "boolean") {
 					loop = args[0];
-					self._loop = loop;
+					this._loop = loop;
 				} else {
 					// Return this sound's loop value.
-					sound = self._soundById(parseInt(args[0], 10));
+					sound = this._soundById(parseInt(args[0], 10));
 					return sound ? sound._loop : false;
 				}
 			} else if (args.length === 2) {
@@ -1353,13 +1347,13 @@
 			}
 
 			// If no id is passed, get all ID's to be looped.
-			var ids = self._getSoundIds(id);
+			var ids = this._getSoundIds(id);
 			for (var i = 0; i < ids.length; i++) {
-				sound = self._soundById(ids[i]);
+				sound = this._soundById(ids[i]);
 
 				if (sound) {
 					sound._loop = loop;
-					if (self._webAudio && sound._node && sound._node.bufferSource) {
+					if (this._webAudio && sound._node && sound._node.bufferSource) {
 						sound._node.bufferSource.loop = loop;
 						if (loop) {
 							sound._node.bufferSource.loopStart = sound._start || 0;
@@ -1369,7 +1363,7 @@
 				}
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1572,17 +1566,16 @@
 		 * @return {Boolean} True if playing and false if not.
 		 */
 		playing: function (id) {
-			var self = this;
 
 			// Check the passed sound ID (if any).
 			if (typeof id === "number") {
-				var sound = self._soundById(id);
+				var sound = this._soundById(id);
 				return sound ? !sound._paused : false;
 			}
 
 			// Otherwise, loop through all sounds and check if any are playing.
-			for (var i = 0; i < self._sounds.length; i++) {
-				if (!self._sounds[i]._paused) {
+			for (var i = 0; i < this._sounds.length; i++) {
+				if (!this._sounds[i]._paused) {
 					return true;
 				}
 			}
@@ -1596,13 +1589,12 @@
 		 * @return {Number} Audio duration in seconds.
 		 */
 		duration: function (id) {
-			var self = this;
-			var duration = self._duration;
+			var duration = this._duration;
 
 			// If we pass an ID, get the sound and return the sprite length.
-			var sound = self._soundById(id);
+			var sound = this._soundById(id);
 			if (sound) {
-				duration = self._sprite[sound._sprite][1] / 1000;
+				duration = this._sprite[sound._sprite][1] / 1000;
 			}
 
 			return duration;
@@ -1701,14 +1693,13 @@
 		 * @return {Howl}
 		 */
 		on: function (event, fn, id, once) {
-			var self = this;
-			var events = self["_on" + event];
+			var events = this["_on" + event];
 
 			if (typeof fn === "function") {
 				events.push(once ? { id: id, fn: fn, once: once } : { id: id, fn: fn });
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1719,8 +1710,7 @@
 		 * @return {Howl}
 		 */
 		off: function (event, fn, id) {
-			var self = this;
-			var events = self["_on" + event];
+			var events = this["_on" + event];
 			var i = 0;
 
 			// Allow passing just an event and ID.
@@ -1740,18 +1730,18 @@
 				}
 			} else if (event) {
 				// Clear out all events of this type.
-				self["_on" + event] = [];
+				this["_on" + event] = [];
 			} else {
 				// Clear out all events of every type.
-				var keys = Object.keys(self);
+				var keys = Object.keys(this);
 				for (i = 0; i < keys.length; i++) {
-					if (keys[i].indexOf("_on") === 0 && Array.isArray(self[keys[i]])) {
-						self[keys[i]] = [];
+					if (keys[i].indexOf("_on") === 0 && Array.isArray(this[keys[i]])) {
+						this[keys[i]] = [];
 					}
 				}
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1762,12 +1752,11 @@
 		 * @return {Howl}
 		 */
 		once: function (event, fn, id) {
-			var self = this;
 
 			// Setup the event listener.
-			self.on(event, fn, id, 1);
+			this.on(event, fn, id, 1);
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1778,8 +1767,7 @@
 		 * @return {Howl}
 		 */
 		_emit: function (event, id, msg) {
-			var self = this;
-			var events = self["_on" + event];
+			var events = this["_on" + event];
 
 			// Loop through event store and fire all functions.
 			for (var i = events.length - 1; i >= 0; i--) {
@@ -1787,18 +1775,18 @@
 					setTimeout(
 						function (fn) {
 							fn.call(this, id, msg);
-						}.bind(self, events[i].fn),
+						}.bind(this, events[i].fn),
 						0,
 					);
 
 					// If this event was setup with `once`, remove it.
 					if (events[i].once) {
-						self.off(event, events[i].fn, events[i].id);
+						this.off(event, events[i].fn, events[i].id);
 					}
 				}
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1831,64 +1819,63 @@
 		 * @return {Howl}
 		 */
 		_ended: function (sound) {
-			var self = this;
 			var sprite = sound._sprite;
 
 			// If we are using IE and there was network latency we may be clipping
 			// audio before it completes playing. Lets check the node to make sure it
 			// believes it has completed, before ending the playback.
-			if (!self._webAudio && self._node && !self._node.ended) {
-				setTimeout(self._ended.bind(self, sound), 100);
-				return self;
+			if (!this._webAudio && this._node && !this._node.ended) {
+				setTimeout(this._ended.bind(this, sound), 100);
+				return this;
 			}
 
 			// Should this sound loop?
-			var loop = !!(sound._loop || self._sprite[sprite][2]);
+			var loop = !!(sound._loop || this._sprite[sprite][2]);
 
 			// Fire the ended event.
-			self._emit("end", sound._id);
+			this._emit("end", sound._id);
 
 			// Restart the playback for HTML5 Audio loop.
-			if (!self._webAudio && loop) {
-				self.stop(sound._id, true).play(sound._id);
+			if (!this._webAudio && loop) {
+				this.stop(sound._id, true).play(sound._id);
 			}
 
 			// Restart this timer if on a Web Audio loop.
-			if (self._webAudio && loop) {
-				self._emit("play", sound._id);
+			if (this._webAudio && loop) {
+				this._emit("play", sound._id);
 				sound._seek = sound._start || 0;
 				sound._rateSeek = 0;
 				sound._playStart = Howler.ctx.currentTime;
 
 				var timeout =
 					((sound._stop - sound._start) * 1000) / Math.abs(sound._rate);
-				self._endTimers[sound._id] = setTimeout(
-					self._ended.bind(self, sound),
+				this._endTimers[sound._id] = setTimeout(
+					this._ended.bind(this, sound),
 					timeout,
 				);
 			}
 
 			// Mark the node as paused.
-			if (self._webAudio && !loop) {
+			if (this._webAudio && !loop) {
 				sound._paused = true;
 				sound._ended = true;
 				sound._seek = sound._start || 0;
 				sound._rateSeek = 0;
-				self._clearTimer(sound._id);
+				this._clearTimer(sound._id);
 
 				// Clean up the buffer source.
-				self._cleanBuffer(sound._node);
+				this._cleanBuffer(sound._node);
 
 				// Attempt to auto-suspend AudioContext if no sounds are still playing.
 				Howler._autoSuspend();
 			}
 
 			// When using a sprite, end the track.
-			if (!self._webAudio && !loop) {
-				self.stop(sound._id);
+			if (!this._webAudio && !loop) {
+				this.stop(sound._id);
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1897,14 +1884,13 @@
 		 * @return {Howl}
 		 */
 		_clearTimer: function (id) {
-			var self = this;
 
-			if (self._endTimers[id]) {
-				clearTimeout(self._endTimers[id]);
-				delete self._endTimers[id];
+			if (this._endTimers[id]) {
+				clearTimeout(this._endTimers[id]);
+				delete this._endTimers[id];
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -1913,12 +1899,11 @@
 		 * @return {Object}    Sound object or null.
 		 */
 		_soundById: function (id) {
-			var self = this;
 
 			// Loop through all sounds and find the one with this ID.
-			for (var i = 0; i < self._sounds.length; i++) {
-				if (id === self._sounds[i]._id) {
-					return self._sounds[i];
+			for (var i = 0; i < this._sounds.length; i++) {
+				if (id === this._sounds[i]._id) {
+					return this._sounds[i];
 				}
 			}
 
@@ -1930,56 +1915,54 @@
 		 * @return {Sound} Sound playback object.
 		 */
 		_inactiveSound: function () {
-			var self = this;
 
-			self._drain();
+			this._drain();
 
 			// Find the first inactive node to recycle.
-			for (var i = 0; i < self._sounds.length; i++) {
-				if (self._sounds[i]._ended) {
-					return self._sounds[i].reset();
+			for (var i = 0; i < this._sounds.length; i++) {
+				if (this._sounds[i]._ended) {
+					return this._sounds[i].reset();
 				}
 			}
 
 			// If no inactive node was found, create a new one.
-			return new Sound(self);
+			return new Sound(this);
 		},
 
 		/**
 		 * Drain excess inactive sounds from the pool.
 		 */
 		_drain: function () {
-			var self = this;
-			var limit = self._pool;
+			var limit = this._pool;
 			var cnt = 0;
 			var i = 0;
 
 			// If there are less sounds than the max pool size, we are done.
-			if (self._sounds.length < limit) {
+			if (this._sounds.length < limit) {
 				return;
 			}
 
 			// Count the number of inactive sounds.
-			for (i = 0; i < self._sounds.length; i++) {
-				if (self._sounds[i]._ended) {
+			for (i = 0; i < this._sounds.length; i++) {
+				if (this._sounds[i]._ended) {
 					cnt++;
 				}
 			}
 
 			// Remove excess inactive sounds, going in reverse order.
-			for (i = self._sounds.length - 1; i >= 0; i--) {
+			for (i = this._sounds.length - 1; i >= 0; i--) {
 				if (cnt <= limit) {
 					return;
 				}
 
-				if (self._sounds[i]._ended) {
+				if (this._sounds[i]._ended) {
 					// Disconnect the audio source when using Web Audio.
-					if (self._webAudio && self._sounds[i]._node) {
-						self._sounds[i]._node.disconnect(0);
+					if (this._webAudio && this._sounds[i]._node) {
+						this._sounds[i]._node.disconnect(0);
 					}
 
 					// Remove sounds until we have the pool size.
-					self._sounds.splice(i, 1);
+					this._sounds.splice(i, 1);
 					cnt--;
 				}
 			}
@@ -1991,12 +1974,11 @@
 		 * @return {Array}    Array of IDs.
 		 */
 		_getSoundIds: function (id) {
-			var self = this;
 
 			if (typeof id === "undefined") {
 				var ids = [];
-				for (var i = 0; i < self._sounds.length; i++) {
-					ids.push(self._sounds[i]._id);
+				for (var i = 0; i < this._sounds.length; i++) {
+					ids.push(this._sounds[i]._id);
 				}
 
 				return ids;
@@ -2011,11 +1993,10 @@
 		 * @return {Howl}
 		 */
 		_refreshBuffer: function (sound) {
-			var self = this;
 
 			// Setup the buffer source for playback.
 			sound._node.bufferSource = Howler.ctx.createBufferSource();
-			sound._node.bufferSource.buffer = cache[self._src];
+			sound._node.bufferSource.buffer = cache[this._src];
 
 			// Connect to the correct node.
 			if (sound._panner) {
@@ -2032,7 +2013,7 @@
 			}
 			sound._node.bufferSource.playbackRate.value = sound._rate;
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -2041,18 +2022,17 @@
 		 * @return {Howl}
 		 */
 		_cleanBuffer: function (node) {
-			var self = this;
 
-			if (self._scratchBuffer) {
+			if (this._scratchBuffer) {
 				node.bufferSource.onended = null;
 				node.bufferSource.disconnect(0);
 				try {
-					node.bufferSource.buffer = self._scratchBuffer;
+					node.bufferSource.buffer = this._scratchBuffer;
 				} catch (e) {}
 			}
 			node.bufferSource = null;
 
-			return self;
+			return this;
 		},
 	};
 
@@ -2073,29 +2053,28 @@
 		 * @return {Sound}
 		 */
 		init: function () {
-			var self = this;
-			var parent = self._parent;
+			var parent = this._parent;
 
 			// Setup the default parameters.
-			self._muted = parent._muted;
-			self._loop = parent._loop;
-			self._volume = parent._volume;
-			self._rate = parent._rate;
-			self._seek = 0;
-			self._paused = true;
-			self._ended = true;
-			self._sprite = "__default";
+			this._muted = parent._muted;
+			this._loop = parent._loop;
+			this._volume = parent._volume;
+			this._rate = parent._rate;
+			this._seek = 0;
+			this._paused = true;
+			this._ended = true;
+			this._sprite = "__default";
 
 			// Generate a unique ID for this sound.
-			self._id = ++Howler._counter;
+			this._id = ++Howler._counter;
 
 			// Add itself to the parent's pool.
-			parent._sounds.push(self);
+			parent._sounds.push(this);
 
 			// Create the new node.
-			self.create();
+			this.create();
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -2103,41 +2082,40 @@
 		 * @return {Sound}
 		 */
 		create: function () {
-			var self = this;
-			var parent = self._parent;
+			var parent = this._parent;
 			var volume =
-				Howler._muted || self._muted || self._parent._muted ? 0 : self._volume;
+				Howler._muted || this._muted || this._parent._muted ? 0 : this._volume;
 
 			if (parent._webAudio) {
 				// Create the gain node for controlling volume (the source will connect to this).
-				self._node =
+				this._node =
 					typeof Howler.ctx.createGain === "undefined"
 						? Howler.ctx.createGainNode()
 						: Howler.ctx.createGain();
-				self._node.gain.setValueAtTime(volume, Howler.ctx.currentTime);
-				self._node.paused = true;
-				self._node.connect(Howler.masterGain);
+				this._node.gain.setValueAtTime(volume, Howler.ctx.currentTime);
+				this._node.paused = true;
+				this._node.connect(Howler.masterGain);
 			} else {
-				self._node = new Audio();
+				this._node = new Audio();
 
 				// Listen for errors (http://dev.w3.org/html5/spec-author-view/spec.html#mediaerror).
-				self._errorFn = self._errorListener.bind(self);
-				self._node.addEventListener("error", self._errorFn, false);
+				this._errorFn = this._errorListener.bind(this);
+				this._node.addEventListener("error", this._errorFn, false);
 
 				// Listen for 'canplaythrough' event to let us know the sound is ready.
-				self._loadFn = self._loadListener.bind(self);
-				self._node.addEventListener(Howler._canPlayEvent, self._loadFn, false);
+				this._loadFn = this._loadListener.bind(this);
+				this._node.addEventListener(Howler._canPlayEvent, this._loadFn, false);
 
 				// Setup the new audio node.
-				self._node.src = parent._src;
-				self._node.preload = "auto";
-				self._node.volume = volume * Howler.volume();
+				this._node.src = parent._src;
+				this._node.preload = "auto";
+				this._node.volume = volume * Howler.volume();
 
 				// Begin loading the source.
-				self._node.load();
+				this._node.load();
 			}
 
-			return self;
+			return this;
 		},
 
 		/**
@@ -2145,52 +2123,49 @@
 		 * @return {Sound}
 		 */
 		reset: function () {
-			var self = this;
-			var parent = self._parent;
+			var parent = this._parent;
 
 			// Reset all of the parameters of this sound.
-			self._muted = parent._muted;
-			self._loop = parent._loop;
-			self._volume = parent._volume;
-			self._rate = parent._rate;
-			self._seek = 0;
-			self._rateSeek = 0;
-			self._paused = true;
-			self._ended = true;
-			self._sprite = "__default";
+			this._muted = parent._muted;
+			this._loop = parent._loop;
+			this._volume = parent._volume;
+			this._rate = parent._rate;
+			this._seek = 0;
+			this._rateSeek = 0;
+			this._paused = true;
+			this._ended = true;
+			this._sprite = "__default";
 
 			// Generate a new ID so that it isn't confused with the previous sound.
-			self._id = ++Howler._counter;
+			this._id = ++Howler._counter;
 
-			return self;
+			return this;
 		},
 
 		/**
 		 * HTML5 Audio error listener callback.
 		 */
 		_errorListener: function () {
-			var self = this;
 
 			// Fire an error event and pass back the code.
-			self._parent._emit(
+			this._parent._emit(
 				"loaderror",
-				self._id,
-				self._node.error ? self._node.error.code : 0,
+				this._id,
+				this._node.error ? this._node.error.code : 0,
 			);
 
 			// Clear the event listener.
-			self._node.removeEventListener("error", self._errorFn, false);
+			this._node.removeEventListener("error", this._errorFn, false);
 		},
 
 		/**
 		 * HTML5 Audio canplaythrough listener callback.
 		 */
 		_loadListener: function () {
-			var self = this;
-			var parent = self._parent;
+			var parent = this._parent;
 
 			// Round up the duration to account for the lower precision in HTML5 Audio.
-			parent._duration = Math.ceil(self._node.duration * 10) / 10;
+			parent._duration = Math.ceil(this._node.duration * 10) / 10;
 
 			// Setup a sprite if none is defined.
 			if (Object.keys(parent._sprite).length === 0) {
@@ -2204,7 +2179,7 @@
 			}
 
 			// Clear the event listener.
-			self._node.removeEventListener(Howler._canPlayEvent, self._loadFn, false);
+			this._node.removeEventListener(Howler._canPlayEvent, this._loadFn, false);
 		},
 	};
 

@@ -1,19 +1,18 @@
-
+import { Cookie } from "./Cookie.js";
 
 export function GameState() {
-	this.map = {};								// current rooms
+	this.map = {}; // current rooms
 	this.params = {};
 	this.actions = {};
 	this.cookie = null;
-	// this.Event = function (e) {
-	// 	console.error('FIXME state');
-	// 	state.apply(e.type);
-	// };
+	this.home = null;
 }
 GameState.prototype = {
+	getHome: function () { return this.home; },
+	setHome: function (room) { this.home = room; },
 	getCurrentRoom: function () {
-		console.info('getCurrentRoom', this.current);
-		return this.current
+		console.info("getCurrentRoom", this.current);
+		return this.current;
 		// return this.map[this.params[""]];
 	},
 	saveCookie: function () {
@@ -23,7 +22,7 @@ GameState.prototype = {
 		}
 	},
 	setCurrentRoom: function (newRoom) {
-		console.info('setCurrentRoom', newRoom);
+		console.info("setCurrentRoom", newRoom);
 		if (newRoom.varname) {
 			this.params[""] = newRoom.varname;
 			this.current = newRoom;
@@ -62,9 +61,9 @@ GameState.prototype = {
 	},
 	loadCookie: function () {
 		//this function reads from a cookie if one exists
-		var params = this.cookie.read();
+		const params = this.cookie.read();
 		if (params) {
-			for (var k in params) {
+			for (const k in params) {
 				if (params.hasOwnProperty(k)) {
 					if (k in this.actions) {
 						this.apply(k, params[k]);

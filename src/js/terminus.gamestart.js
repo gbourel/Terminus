@@ -1,15 +1,23 @@
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./engine/js.js";
+import { _, pogencnt, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './engine/Gettext.js';
+import { music } from "./engine/Music.js";
+import { snd } from "./engine/Sound.js";
+import { user } from "./engine/User.js";
+import { vt } from "./engine/VTerm.js";
+import { debug } from "./terminus.utils.js";
+
 const game_version = "0.2";
 const cookie_version = "terminus" + game_version;
 
-const TESTING=false;
+const TESTING = false;
 
 export function start_game(state) {
 	debug("start_game");
 	let loadel;
 
 	// prepare game loading
-	let has_save = state.startCookie(cookie_version);
-	let choices = [_("cookie_yes"), _("cookie_no")];
+	const has_save = state.startCookie(cookie_version);
+	const choices = [_("cookie_yes"), _("cookie_no")];
 	if (has_save) choices.unshift(_("cookie_yes_load"));
 
 	var game_start = function (vt, use_cookies) {
@@ -65,7 +73,7 @@ export function start_game(state) {
 				vt.ask(
 					user.judged + "\n" + _("username_prompt"),
 					function (val) {
-						_setUserName(state, val);
+						user.setName(state, val);
 						next();
 					},
 					{
@@ -82,7 +90,7 @@ export function start_game(state) {
 				vt.ask(
 					_("useraddress_prompt"),
 					function (val) {
-						_setUserAddress(state, val);
+						user.setAddress(state, val);
 						next();
 					},
 					{
@@ -156,14 +164,13 @@ export function start_game(state) {
 	};
 
 	// build view
-	vt = new VTerm("term");
 	vt.state = state;
 	vt.soundbank = snd;
 	vt.charduration = 20;
 	vt.charfactor[" "] = 25; //on each nbsp , it will take 1/2 second
 	vt.disable_input();
-	_addGroup("cat");
-	_addGroup("dir");
+	user.addGroup("cat");
+	user.addGroup("dir");
 	vt.flash(0, 800);
 	vt.epic_img_enter("titlescreen.gif", "epicfromright", 800, function (vt) {
 		vt.show_msg(["version : " + game_version, null]);

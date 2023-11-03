@@ -26,7 +26,7 @@ def po2json(orig):
         return lines
     lines += [
         "// generated from po file\n",
-        "var dialog={"
+        "export const dialog={"
     ]
     for entry in entries:
         if not entry.msgstr:

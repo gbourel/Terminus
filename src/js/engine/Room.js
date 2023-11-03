@@ -1,4 +1,6 @@
-import { Item, File, People } from './Item.js';
+import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
+import { File, Item, People } from "./Item.js";
+import { _, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
 
 const global_spec = {};
 
@@ -22,8 +24,8 @@ function Room(roomname, introtext, picname, prop) {
 }
 export function newRoom(map, id, picture, prop) {
 	//this function automatically set the variable $id to ease game saving
-	let poid = POPREFIX_ROOM + id;
-	let n = new Room(
+	const poid = POPREFIX_ROOM + id;
+	const n = new Room(
 		_(poid, [], { or: PO_DEFAULT_ROOM }),
 		_(poid + POSUFFIX_DESC, [], { or: PO_DEFAULT_ROOM_DESC }),
 		picture,
@@ -36,7 +38,7 @@ export function newRoom(map, id, picture, prop) {
 	return n;
 }
 export function enterRoom(new_room, vt, state) {
-	let prev = vt.getContext();
+	const prev = vt.getContext();
 	if (prev || !new_room.hasParent(prev)) {
 		// console.log(prev.toString(),'doLeaveCallbackTo',new_room.toString());
 		prev.doLeaveCallbackTo(new_room);
@@ -53,7 +55,7 @@ Room.prototype = union(File.prototype, {
 		ct = d(ct, {});
 		let ev_trigger = null;
 		// console.log('EVENT '+cmd);
-		let context = {
+		const context = {
 			term: vt,
 			room: this,
 			arg: def(idx) ? args[idx] : null,
@@ -72,7 +74,7 @@ Room.prototype = union(File.prototype, {
 			ev_trigger = this.cmd_event[cmd];
 		}
 		if (ev_trigger) {
-			let ck =
+			const ck =
 				typeof ev_trigger === "function" ? ev_trigger(context) : ev_trigger;
 			if (ck) {
 				// console.log('FIRE '+ck);
@@ -139,19 +141,19 @@ Room.prototype = union(File.prototype, {
 	newItem: function (id, picname, prop) {
 		prop = d(prop, {});
 		prop.poid = d(prop.poid, id);
-		let ret = new Item("", "", picname, prop);
+		const ret = new Item("", "", picname, prop);
 		this.addItem(ret);
 		return ret;
 	},
 	newPeople: function (id, picname, prop) {
 		prop = d(prop, {});
 		prop.poid = d(prop.poid, id);
-		let ret = new People("", "", picname, prop);
+		const ret = new People("", "", picname, prop);
 		this.addItem(ret);
 		return ret;
 	},
 	newItemBatch: function (id, names, picname, prop) {
-		let ret = [];
+		const ret = [];
 		prop = d(prop, {});
 		for (let i = 0; i < names.length; i++) {
 			prop.poid = id;
@@ -165,27 +167,27 @@ Room.prototype = union(File.prototype, {
 		return idx == -1 ? null : this.items.splice(idx, 1)[0];
 	},
 	removeItemByName: function (name) {
-		let idx = this.idxItemFromName(name);
+		const idx = this.idxItemFromName(name);
 		return this.removeItemByIdx(idx);
 	},
 	hasItem: function (name, args) {
 		args = args || [];
-		let idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
+		const idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
 		return idx > -1;
 	},
 	removeItem: function (name, args) {
 		args = args || [];
-		let idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
+		const idx = this.idxItemFromName(_(POPREFIX_ITEM + name, args));
 		return this.removeItemByIdx(idx);
 	},
 	hasPeople: function (name, args) {
 		args = args || [];
-		let idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
+		const idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
 		return idx > -1;
 	},
 	removePeople: function (name, args) {
 		args = args || [];
-		let idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
+		const idx = this.idxItemFromName(_(POPREFIX_PEOPLE + name, args));
 		return this.removeItemByIdx(idx);
 	},
 	idxItemFromName: function (name) {
@@ -196,7 +198,7 @@ Room.prototype = union(File.prototype, {
 	},
 	getItemFromName: function (name) {
 		//    console.log(name);
-		let idx = this.idxItemFromName(name);
+		const idx = this.idxItemFromName(name);
 		return idx == -1 ? null : this.items[idx];
 	},
 	getItem: function (name) {
@@ -205,11 +207,11 @@ Room.prototype = union(File.prototype, {
 
 	// linked room management
 	getChildFromName: function (name) {
-		let idx = this.children.map(objToStr).indexOf(name);
+		const idx = this.children.map(objToStr).indexOf(name);
 		return idx == -1 ? null : this.children[idx];
 	},
 	hasChild: function (child) {
-		let idx = this.children.map(objToStr).indexOf(child.name);
+		const idx = this.children.map(objToStr).indexOf(child.name);
 		return idx == -1 ? null : this.children[idx];
 	},
 	addPath: function (newchild, wayback) {
@@ -223,13 +225,12 @@ Room.prototype = union(File.prototype, {
 		return this;
 	},
 	doLeaveCallbackTo: function (to) {
-		let self = this;
 		//    console.log(t+' leave callback ?');
-		if (self.uid === to.uid) {
-		} else if (self.parents.length) {
-			let p = self.parents[0];
-			if (typeof self.leave_callback == "function") {
-				self.leave_callback();
+		if (this.uid === to.uid) {
+		} else if (this.parents.length) {
+			const p = this.parents[0];
+			if (typeof this.leave_callback == "function") {
+				this.leave_callback();
 			}
 			if (p) {
 				p.doLeaveCallbackTo(to);
@@ -279,7 +280,7 @@ Room.prototype = union(File.prototype, {
 		} else if (arg === ".") {
 			return this;
 		} else if (arg && arg.indexOf("/") == -1) {
-			let c = this.children;
+			const c = this.children;
 			for (let i = 0; i < c.length; i++) {
 				if (arg === c[i].toString()) {
 					return c[i];
@@ -296,6 +297,7 @@ Room.prototype = union(File.prototype, {
 		let item,
 			pa = this.pathToRoom(path),
 			ret = {};
+		if (!path) { return {}; }
 		ret.room = pa[0];
 		ret.item_name = pa[1];
 		ret.item_idx = -1;
@@ -315,8 +317,10 @@ Room.prototype = union(File.prototype, {
 		return ret;
 	},
 	pathToRoom: function (path) {
-		if (!path) { return null; }
-		let pat = path.split("/");
+		if (!path) {
+			return null;
+		}
+		const pat = path.split("/");
 		let room = this;
 		let lastcomponent = null;
 		let cancd = true;
