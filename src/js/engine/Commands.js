@@ -10,6 +10,7 @@ import {
 import { enterRoom } from "./Room.js";
 import { ReturnSequence } from "./ReturnSequence.js";
 import { _, pogencnt, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
+import { state } from "./GameState.js";
 
 _setupCommand("less", null, [ARGT.strictfile], function (args, vt) {
 	// event arg -> object
@@ -185,8 +186,8 @@ _setupCommand("cd", "dir", [ARGT.dir], function (args, vt) {
 			(_hasRightForCommand("pwd") ? "\n" + _("cmd_cd_no_args_pwd") : "")
 		);
 	} else if (args[0] === "~") {
-		$home.previous = t;
-		enterRoom($home, vt);
+		state.getHome().previous = t;
+		enterRoom(state.getHome(), vt);
 		return _("cmd_cd_home");
 	} else if (args[0] === "..") {
 		t.fire_event(vt, "cd", args, 0);

@@ -1,6 +1,6 @@
 import { Cookie } from "./Cookie.js";
 
-export function GameState() {
+function GameState() {
 	this.map = {}; // current rooms
 	this.params = {};
 	this.actions = {};
@@ -78,3 +78,4 @@ GameState.prototype = {
 		return false;
 	},
 };
+export const state = new GameState()

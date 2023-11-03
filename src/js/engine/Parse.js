@@ -10,6 +10,7 @@ import {
 	_argType,
 	cmd_done,
 } from "./Command.js";
+import { state } from "./GameState.js";
 
 const regexp_str = /^['"].*['"]$/;
 const regexp_star = /.*\*.*/;
@@ -76,7 +77,7 @@ export function commonprefix(array) {
 }
 export function _completeArgs(args, argidx, tocomplete, r, compl) {
 	// return completion matches
-	let search_room = tocomplete.substring(0, 1) == "~" ? $home : r;
+	let search_room = tocomplete.substring(0, 1) == "~" ? state.getHome() : r;
 	tocomplete = tocomplete.replace(/\*/g, ".*");
 	//Iterate through each room
 	let new_room,

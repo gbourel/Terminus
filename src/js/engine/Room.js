@@ -1,6 +1,7 @@
 import { dom, addBtn, prEl, addEl, span, injectProperties, union, almostEqual, addAttrs, objToStr, clone, d, anyStr, aStrArray, rmIdxOf, isStr, isObj, def, ndef, pushDef, cntUp, hdef, randomSort, shuffleStr, randomStr, Seq } from "./js.js";
 import { File, Item, People } from "./Item.js";
 import { _, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
+import { state } from "./GameState.js";
 
 const global_spec = {};
 
@@ -274,7 +275,7 @@ Room.prototype = union(File.prototype, {
 	can_cd: function (arg) {
 		//Don't allow for undefined or multiple paths
 		if (arg === "~") {
-			return $home;
+			return state.getHome();
 		} else if (arg === "..") {
 			return this.parents[0];
 		} else if (arg === ".") {

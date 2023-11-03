@@ -1,3 +1,5 @@
+import { state } from "./engine/GameState.js";
+
 var tree = dom.El("div");
 tree.className = "tree";
 
@@ -17,5 +19,5 @@ function autoexplore(room) {
 	}
 	return branchcontainer;
 }
-tree.appendChild(autoexplore($home));
+tree.appendChild(autoexplore(state.getHome()));
 dom.body.appendChild(tree);
