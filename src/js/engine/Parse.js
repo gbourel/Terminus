@@ -11,6 +11,7 @@ import {
 	cmd_done,
 } from "./Command.js";
 import { state } from "./GameState.js";
+import { dialog } from "../../.build/terminus.dialog.fr.js";
 
 const regexp_str = /^['"].*['"]$/;
 const regexp_star = /.*\*.*/;
@@ -27,7 +28,7 @@ function _expandArgs(args, r) {
 		if (regexp_str.test(args[i])) {
 			newargs.push(args[i].slice(1, args[i].length - 1));
 		} else if (regexp_star.test(args[i])) {
-			roomp = r.pathToRoom(args[i]);
+			let roomp = r.pathToRoom(args[i]);
 
 			room = roomp[0];
 			lastcomponent = roomp[1];

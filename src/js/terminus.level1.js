@@ -6,7 +6,7 @@ import { music } from "./engine/Music.js";
 import { user } from "./engine/User.js";
 import { vt } from "./engine/VTerm.js";
 import { global_fire_done } from "./engine/Command.js";
-import { mesg, learn, unlock } from "./terminus.utils.js";
+import { mesg, learn, unlock, success } from "./terminus.utils.js";
 
 export function initLvl1(state, map) {
 	// home

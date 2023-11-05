@@ -7,6 +7,7 @@ import {
 	_getUserCommands,
 	cmd_done,
 } from "./Command.js";
+import { Item } from "./Item.js";
 import { enterRoom } from "./Room.js";
 import { ReturnSequence } from "./ReturnSequence.js";
 import { _, pogencnt, POPREFIX_CMD, POPREFIX_ROOM, POPREFIX_ITEM, POPREFIX_PEOPLE, POSUFFIX_DESC, POSUFFIX_EXEC_DESC, PO_NONE, PO_NONE_DESC, PO_DEFAULT_ROOM, PO_DEFAULT_ITEM, PO_DEFAULT_PEOPLE, PO_DEFAULT_ROOM_DESC, PO_DEFAULT_ITEM_DESC, PO_DEFAULT_PEOPLE_DESC } from './Gettext.js';
@@ -144,7 +145,8 @@ _setupCommand("ls", "dir", [ARGT.dir], function (args, vt) {
 
 	if (args.length > 0) {
 		let room = t.traversee(args[0]).room;
-		if (room) {
+		let prtls = null;
+    if (room) {
 			if (!(room.readable || t.sudo)) {
 				return _("permission_denied") + " " + _("room_unreadable");
 			}

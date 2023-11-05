@@ -26,7 +26,8 @@ export function _getCommandFunc(name) {
 	return global_commands_fu[name].fu;
 }
 export function _getCommandSyntax(name) {
-	return global_commands_fu[name].syntax;
+	let cmd = global_commands_fu[name];
+	return cmd?.syntax;
 }
 export function _hasRightForCommand(cmd, r) {
 	return global_commands_fu[cmd]
@@ -37,6 +38,7 @@ export function _getUserCommands() {
 	return Object.keys(global_commands_fu).filter(_hasRightForCommand);
 }
 export function _argType(syntax, argnum, argtyp) {
+	if (!syntax[argnum]) { return null; }
 	return argtyp[0] === syntax[argnum][0];
 }
 export function _setupCommand(cmd, group, syntax, fu) {

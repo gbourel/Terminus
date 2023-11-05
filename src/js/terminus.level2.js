@@ -6,7 +6,7 @@ import { music } from "./engine/Music.js";
 import { user } from "./engine/User.js";
 import { vt } from "./engine/VTerm.js";
 import { global_fire_done } from "./engine/Command.js";
-import { mesg, learn, unlock } from "./terminus.utils.js";
+import { mesg, learn, unlock, success } from "./terminus.utils.js";
 
 //---------------LEVEL 2---------------------
 export function initLvl2(state, map) {
@@ -96,7 +96,7 @@ export function initLvl2(state, map) {
 				backpack.unsetCmdEvent("less");
 				backpack.setPoDelta([".zip"]);
 				backpack.setCmdEvent("unzip", function (ct) {
-					unzipped = [];
+					let unzipped = [];
 					unzipped.push(ct.room.newItem("rm_cost"));
 					unzipped.push(ct.room.newItem("mkdir_cost"));
 					backpack.setPoDelta([]);
@@ -451,7 +451,9 @@ export function initLvl2(state, map) {
 	map.bigfiles.filter(function (f) {
 		f.setCmdText("grep_overflow", _("grep_long"));
 	});
-	map.bigfiles[Math.floor(Math.random() * 9)].setCmdText("grep", "password = IHTFP");
+	let n = Math.floor(Math.random() * 9);
+	map.bigfiles[n].setCmdText("grep", "password = IHTFP");
+	console.info('bigfile', n, map.bigfiles);
 
 	// PARADISE (end game screen)
 	newRoom(map, "paradise", "loc_theend.gif")
