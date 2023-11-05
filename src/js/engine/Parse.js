@@ -12,6 +12,7 @@ import {
 } from "./Command.js";
 import { state } from "./GameState.js";
 import { dialog } from "../../.build/terminus.dialog.fr.js";
+import { sudoPasswd } from "../terminus.level2.js";
 
 const regexp_str = /^['"].*['"]$/;
 const regexp_star = /.*\*.*/;
@@ -245,7 +246,7 @@ export function _parse_exec(vt, arrs) {
 		let passwordcallback = function (passwd, elem) {
 			let ret = "";
 			// console.log(passwd);
-			if (passwd == "IHTFP") {
+			if (passwd == sudoPasswd) {
 				t.supass = true;
 				ret = run_cmd();
 			} else {

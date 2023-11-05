@@ -9,6 +9,7 @@ import { global_fire_done } from "./engine/Command.js";
 import { mesg, learn, unlock, success } from "./terminus.utils.js";
 
 //---------------LEVEL 2---------------------
+export const sudoPasswd = Math.random().toString(36).substring(2,7).toUpperCase();
 export function initLvl2(state, map) {
 	// TOWN SQUARE
 	map.portal.addPath(newRoom(map, "townsquare", "loc_square.gif"));
@@ -409,7 +410,6 @@ export function initLvl2(state, map) {
 	);
 
 	// KERNEL FILES
-	// .addCommand("sudo",{question:undefined,password:"IHTFP"})
 	map.slide.addPath(newRoom(map, "kernel").addCommand("sudo").addCommand("grep"));
 	map.kernel
 		.newItem("certificate", undefined, { readable: false })
@@ -451,9 +451,8 @@ export function initLvl2(state, map) {
 	map.bigfiles.filter(function (f) {
 		f.setCmdText("grep_overflow", _("grep_long"));
 	});
-	let n = Math.floor(Math.random() * 9);
-	map.bigfiles[n].setCmdText("grep", "password = IHTFP");
-	console.info('bigfile', n, map.bigfiles);
+
+	map.bigfiles[Math.floor(Math.random() * 9)].setCmdText("grep", `password = ${sudoPasswd}`);
 
 	// PARADISE (end game screen)
 	newRoom(map, "paradise", "loc_theend.gif")
