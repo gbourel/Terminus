@@ -1339,7 +1339,7 @@ msgstr "Instructions"
 msgid "item_instructions_text"
 msgstr ""
 "Il y a de nombreux objets entreposés dans la salle PlusDeFichiersNoyau.\n"
-"Dans l'un d'eux, j'ai caché le mot de passe pour utiliser {{cmd.sudo}} précédé de « password= ».\n"
+"Dans l'un d'eux, j'ai caché le mot de passe pour utiliser {{cmd.sudo}} précédé de « password ».\n"
 "Vous avez probablement appris à utiliser le sort {{cmd.grep}}. Si ce n'est pas encore le cas, rendez vous à la bibliothèque.\n"
 
 msgid "room_morekernel"
